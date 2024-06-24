@@ -1,42 +1,37 @@
 import subprocess
 import os
+import install_funcs as controllarr
 
-def install_traefik():
-    param1 = input("Enter PARAM 1: ")
-    print(param1)
+PUID = os.getuid()
+PGID = os.getgid()
+GLOBAL_COMPOSE_PATH = input("Enter complete path to compose file locations: ")
 
-def install_dockge():
-    compose_loc = input("Enter complete path to compose file locations: ")
-    if compose_loc == "":
-        print("No path entered. Using /opt/stacks as default.")
-        compose_loc = "/opt/stacks"
-    print("Using path: " + compose_loc)
-    if not os.path.exists(compose_loc+"/dockge"):
-        print("Path does not exist. Creating path...")
-        os.makedirs(compose_loc+"/dockge")
-        print("Path created.")
-    
-    print("Installing Dockge...")
-    # Prep ENV File
-    env_file = open(compose_loc+"/dockge/.env", "w")
-    env_file.write("STACKS="+compose_loc)
-    env_file.close()
-
-    #TODO: Change this to grab from github
-    # Dockge Image
-    subprocess.run(["cp", "./compose/dockge/docker-compose.yaml", compose_loc+"/dockge/"])
-    cur_dir = os.getcwd()
-    os.chdir(f"{compose_loc}/dockge")
-    subprocess.run(["sudo", "docker", "compose", "up", "-d"])
-    os.chdir(cur_dir)
-   
+if GLOBAL_COMPOSE_PATH == "":
+    print("No path entered. Using /opt/stacks as default.")
+    GLOBAL_COMPOSE_PATH = "/opt/stacks"
+print("Using path: " + GLOBAL_COMPOSE_PATH)
+if not os.path.exists(GLOBAL_COMPOSE_PATH):
+    print("Path does not exist. Creating path...")
+    os.makedirs(GLOBAL_COMPOSE_PATH)
+    print("Path created.")
 
 
+# ========== BEGIN CONTROLLARR ========== #
 
-
-
-# ========== BEGIN CONTROLLARR ==========
+to_install_traefik = False
+to_install_dockge = True
+to_install_homepage = True
 
 print("\n========== Welcome to Controllarr! ==========")
-print("Installing Traefik...\n")
-install_dockge()
+
+if to_install_traefik:
+    print("Begin Traefik Config...\n")
+    controllarr.install_traefik(GLOBAL_COMPOSE_PATH)
+
+if to_install_dockge:
+    print("Begin Dockge Config...\n")
+    controllarr.install_dockge(GLOBAL_COMPOSE_PATH)
+
+if to_install_homepage:
+    print("Begin Homepage Config...\n")
+    controllarr.install_homepage(GLOBAL_COMPOSE_PATH, PUID, PGID)
