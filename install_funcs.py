@@ -34,16 +34,16 @@ def port_in_use(port: int) -> bool:
             print(f"Port {port} is in use.")
             return True
 
-def get_valid_port(service_name, default):
+def get_valid_port(service_name: str, default:int) -> int:
     port = input(f"Enter port for {service_name} (default: {default}): ")
     if port == "":
         port = f"{default}"
     while not port.isdigit() or int(port) < 1 or int(port) > 65535 or port_in_use(int(port)):
         print("Invalid port. Please enter a valid port number.")
         port = input(f"Enter port for {service_name}: ")
-    return port
+    return int(port)
 
-def start_docker_stack(GLOBAL_COMPOSE_PATH, service_name):
+def start_docker_stack(GLOBAL_COMPOSE_PATH: str, service_name: str) -> None:
     #TODO: Change this to grab from github
     try:
         print(f"Starting {service_name}...")
@@ -78,7 +78,7 @@ def start_docker_stack(GLOBAL_COMPOSE_PATH, service_name):
     except Exception as e:
         print(f"Error starting {service_name}: {e}")
 
-def check_service_path(GLOBAL_COMPOSE_PATH, service_name):
+def check_service_path(GLOBAL_COMPOSE_PATH: str, service_name: str) -> None:
     if not os.path.exists(f"{GLOBAL_COMPOSE_PATH}/{service_name}"):
         print("Path does not exist. Creating path...")
         os.makedirs(f"{GLOBAL_COMPOSE_PATH}/{service_name}")
