@@ -43,7 +43,7 @@ def get_valid_port(service_name, default):
         port = input(f"Enter port for {service_name}: ")
     return port
 
-def start_docker_container(GLOBAL_COMPOSE_PATH, service_name):
+def start_docker_stack(GLOBAL_COMPOSE_PATH, service_name):
     #TODO: Change this to grab from github
     try:
         print(f"Starting {service_name}...")
@@ -100,23 +100,26 @@ def install_dockge(GLOBAL_COMPOSE_PATH: str, ENV: dict) -> None:
     write_env_vars(env_file_path, ENV)
 
     # Start Dockge Image
-    start_docker_container(GLOBAL_COMPOSE_PATH, service_name)
+    start_docker_stack(GLOBAL_COMPOSE_PATH, service_name)
 
 def install_homepage(GLOBAL_COMPOSE_PATH: str, ENV: dict) -> None:
     service_name = "homepage"
     check_service_path(GLOBAL_COMPOSE_PATH, service_name)
 
     print("Installing Homepage...")
-    # Prep ENV File
-    env_file_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/.env"
     cfg_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/config"
-    ENV["HOMEPAGE_CONFIG_PATH"] = cfg_path
     if not os.path.exists(cfg_path):
         os.makedirs(cfg_path)
+    
+    # Add CFG Path to ENV
+    ENV["HOMEPAGE_CONFIG_PATH"] = cfg_path
+
+    # Prep ENV File
+    env_file_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/.env"
     write_env_vars(env_file_path, ENV)
 
     # Start Homepage Image
-    start_docker_container(GLOBAL_COMPOSE_PATH, service_name)
+    start_docker_stack(GLOBAL_COMPOSE_PATH, service_name)
 
 
 def install_prometheus(GLOBAL_COMPOSE_PATH: str, ENV: dict, CFG:dict) -> None:
@@ -124,10 +127,12 @@ def install_prometheus(GLOBAL_COMPOSE_PATH: str, ENV: dict, CFG:dict) -> None:
     check_service_path(GLOBAL_COMPOSE_PATH, service_name)
 
     print("Installing Prometheus...")
-    # Check congig folder
+    # Check config folder
     cfg_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/config"
     if not os.path.exists(cfg_path):
         os.makedirs(cfg_path)
+    
+    # Add CFG Path to ENV
     ENV["PROMETHEUS_CONFIG"] = cfg_path
 
     # Write CFG File
@@ -138,7 +143,5 @@ def install_prometheus(GLOBAL_COMPOSE_PATH: str, ENV: dict, CFG:dict) -> None:
     env_file_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/.env"
     write_env_vars(env_file_path, ENV)
 
-    
-
-
-
+    # Start Prometheus-Grafana Stack
+    start_docker_stack(GLOBAL_COMPOSE_PATH, service_name)
