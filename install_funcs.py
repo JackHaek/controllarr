@@ -1,7 +1,5 @@
 import subprocess
 import os
-import socket
-from contextlib import closing
 import fileinput
 
 def write_cfg_vars(cfg_file_path: str, CFG: dict) -> None:
@@ -25,29 +23,10 @@ def write_env_vars(env_file_path: str, env_vars: dict) -> None:
             env_file.write(f"{var_name}={value}")
     env_file.close()
 
-def port_in_use(port: int) -> bool:
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_DGRAM)) as s:
-        if s.connect_ex(('localhost', port)) == 0:
-            print(s.connect_ex(('localhost', port)))
-            return False
-        else:
-            print(f"Port {port} is in use.")
-            return True
-
-def get_valid_port(service_name: str, default:int) -> int:
-    port = input(f"Enter port for {service_name} (default: {default}): ")
-    if port == "":
-        port = f"{default}"
-    while not port.isdigit() or int(port) < 1 or int(port) > 65535 or port_in_use(int(port)):
-        print("Invalid port. Please enter a valid port number.")
-        port = input(f"Enter port for {service_name}: ")
-    return int(port)
-
 def start_docker_stack(GLOBAL_COMPOSE_PATH: str, service_name: str) -> None:
     #TODO: Change this to grab from github
     try:
         print(f"Starting {service_name}...")
-        print(os.getcwd())
 
         #Check if docker-compose.yaml exists in the service folder
         if os.path.isfile(f"{GLOBAL_COMPOSE_PATH}/{service_name}/docker-compose.yaml"):

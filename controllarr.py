@@ -1,5 +1,6 @@
 import os
 import install_funcs as controllarr
+import validity_checker as vc
 
 TESTING = True
 
@@ -82,5 +83,15 @@ if to_install_homepage:
 
 if to_install_prometheus:
     print("\n========== Begin Prometheus Config ==========\n")
+    
+    # Configure Prometheus-Grafana ENV
+    PROMETHEUS_GRAFANA_ENV["PROMETHEUS_PORT"] = vc.get_valid_port("Prometheus", PROMETHEUS_GRAFANA_ENV["PROMETHEUS_PORT"], ALL_ENV)
+    PROMETHEUS_GRAFANA_ENV["GRAFANA_PORT"] = vc.get_valid_port("Grafana", PROMETHEUS_GRAFANA_ENV["GRAFANA_PORT"], ALL_ENV)
+
+    # Configure Prometheus-Grafana CFG
+    PROMETHEUS_GRAFANA_CFG["GLOBAL_SCRAPE_INTERVAL"] = vc.get_valid_interval("Prometheus - GLOBAL", PROMETHEUS_GRAFANA_CFG["GLOBAL_SCRAPE_INTERVAL"])
+    PROMETHEUS_GRAFANA_CFG["PROMETHEUS_SCRAPE_INTERVAL"] = vc.get_valid_interval("Prometheus", PROMETHEUS_GRAFANA_CFG["PROMETHEUS_SCRAPE_INTERVAL"])
+
+    # Install Prometheus-Grafana
     controllarr.install_prometheus(GLOBAL_COMPOSE_PATH, PROMETHEUS_GRAFANA_ENV, PROMETHEUS_GRAFANA_CFG)
     ALL_ENV.append(PROMETHEUS_GRAFANA_ENV)
