@@ -1,10 +1,15 @@
-import subprocess
 import os
 import install_funcs as controllarr
 
+TESTING = True
+
 PUID = os.getuid()
 PGID = os.getgid()
-GLOBAL_COMPOSE_PATH = input("Enter complete path to compose file locations: ")
+
+if not TESTING:
+    GLOBAL_COMPOSE_PATH = input("Enter complete path to compose file locations: ")
+else:
+    GLOBAL_COMPOSE_PATH = "/workspaces/ubuntu/tc"
 
 if GLOBAL_COMPOSE_PATH == "":
     print("No path entered. Using /opt/stacks as default.")
@@ -22,16 +27,16 @@ to_install_traefik = False
 to_install_dockge = True
 to_install_homepage = True
 
-print("\n========== Welcome to Controllarr! ==========")
+print("\n========== Welcome to Controllarr! ==========\n")
 
 if to_install_traefik:
-    print("Begin Traefik Config...\n")
+    print("\n========== Begin Traefik Config ==========\n")
     controllarr.install_traefik(GLOBAL_COMPOSE_PATH)
 
 if to_install_dockge:
-    print("Begin Dockge Config...\n")
+    print("\n========== Begin Dockge Config ==========\n")
     controllarr.install_dockge(GLOBAL_COMPOSE_PATH)
 
 if to_install_homepage:
-    print("Begin Homepage Config...\n")
+    print("\n==========Begin Homepage Config ==========\n")
     controllarr.install_homepage(GLOBAL_COMPOSE_PATH, PUID, PGID)

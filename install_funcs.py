@@ -12,13 +12,38 @@ def get_valid_port(service_name):
 
 def start_docker_container(GLOBAL_COMPOSE_PATH, service_name):
     #TODO: Change this to grab from github
-    print(f"Starting {service_name}...")
-    subprocess.run(["cp", f"./compose/{service_name}/docker-compose.yaml", f"{GLOBAL_COMPOSE_PATH}/{service_name}/"])
-    cur_dir = os.getcwd()
-    os.chdir(f"{GLOBAL_COMPOSE_PATH}/{service_name}")
-    subprocess.run(["sudo", "docker", "compose", "up", "-d"])
-    os.chdir(cur_dir)
-    print(f"{service_name} started.")
+    try:
+        print(f"Starting {service_name}...")
+        print(os.getcwd())
+
+        #Check if docker-compose.yaml exists in the service folder
+        if os.path.isfile(f"{GLOBAL_COMPOSE_PATH}/{service_name}/docker-compose.yaml"):
+            response = subprocess.run(["rm", f"{GLOBAL_COMPOSE_PATH}/{service_name}/docker-compose.yaml"])
+            if response.returncode != 0:
+                print(f"Error removing docker-compose.yaml for {service_name}.")
+                return
+            
+        #Copy docker-compose.yaml from application folder to service folder
+        response = subprocess.run(["cp", f"./compose/{service_name}/docker-compose.yaml", f"{GLOBAL_COMPOSE_PATH}/{service_name}/"])
+        if response.returncode != 0:
+            print(f"Error copying docker-compose.yaml for {service_name}.")
+            return
+        
+        #Change directory to service folder and start docker container
+        cur_dir = os.getcwd()
+        os.chdir(f"{GLOBAL_COMPOSE_PATH}/{service_name}")
+        response = subprocess.run(["sudo", "docker", "compose", "up", "-d"])
+        if response.returncode != 0:
+            print(f"Error starting {service_name}.")
+            #Change back to original directory
+            os.chdir(cur_dir)
+            return
+        
+        #Change back to original directory
+        os.chdir(cur_dir)
+        print(f"{service_name} started.")
+    except Exception as e:
+        print(f"Error starting {service_name}: {e}")
 
 def check_service_path(GLOBAL_COMPOSE_PATH, service_name):
     if not os.path.exists(f"{GLOBAL_COMPOSE_PATH}/{service_name}"):
@@ -58,6 +83,6 @@ def install_homepage(GLOBAL_COMPOSE_PATH, PUID, PGID):
     env_file.close()
 
     # Homepage Image
-    start_docker_container(GLOBAL_COMPOSE_PATH, "homepage")
+    start_docker_container(GLOBAL_COMPOSE_PATH, service_name)
 
 
