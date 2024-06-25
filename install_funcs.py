@@ -1,11 +1,44 @@
 import subprocess
 import os
+import socket
+from contextlib import closing
+import fileinput
 
-def get_valid_port(service_name):
-    port = input(f"Enter port for {service_name} (default: 3000): ")
+def write_cfg_vars(cfg_file_path: str, CFG: dict) -> None:
+    with fileinput.FileInput(cfg_file_path, inplace=True, backup='.bak') as file:
+        for line in file:
+            made_change = False
+            for var_name, value in CFG.items():
+                if f"${{{var_name}}}" in line:
+                    print(line.replace(f"${{{var_name}}}", value), end='')
+                    made_change = True
+            if not made_change:
+                print(line, end='')
+
+def write_env_vars(env_file_path: str, env_vars: dict) -> None:
+    env_file = open(env_file_path, "w")
+    num_env = len(env_vars)
+    for idx, (var_name, value) in enumerate(env_vars.items()):
+        if idx + 1 < num_env:
+            env_file.write(f"{var_name}={value}\n")
+        else:
+            env_file.write(f"{var_name}={value}")
+    env_file.close()
+
+def port_in_use(port: int) -> bool:
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_DGRAM)) as s:
+        if s.connect_ex(('localhost', port)) == 0:
+            print(s.connect_ex(('localhost', port)))
+            return False
+        else:
+            print(f"Port {port} is in use.")
+            return True
+
+def get_valid_port(service_name, default):
+    port = input(f"Enter port for {service_name} (default: {default}): ")
     if port == "":
-        port = "3000"
-    while not port.isdigit() or int(port) < 1 or int(port) > 65535:
+        port = f"{default}"
+    while not port.isdigit() or int(port) < 1 or int(port) > 65535 or port_in_use(int(port)):
         print("Invalid port. Please enter a valid port number.")
         port = input(f"Enter port for {service_name}: ")
     return port
@@ -51,38 +84,61 @@ def check_service_path(GLOBAL_COMPOSE_PATH, service_name):
         os.makedirs(f"{GLOBAL_COMPOSE_PATH}/{service_name}")
         print(f"Path created: {GLOBAL_COMPOSE_PATH}/{service_name}")
 
-def install_traefik(GLOBAL_COMPOSE_PATH):
+# ==================== INSTALLER FUNCTIONS ==================== #
+
+def install_traefik(GLOBAL_COMPOSE_PATH: str, ENV: dict) -> None:
     param1 = input("Enter PARAM 1: ")
     print(param1)
 
-def install_dockge(GLOBAL_COMPOSE_PATH):
+def install_dockge(GLOBAL_COMPOSE_PATH: str, ENV: dict) -> None:
     service_name = "dockge"
     check_service_path(GLOBAL_COMPOSE_PATH, service_name)
     
     print("Installing Dockge...")
     # Prep ENV File
-    env_file = open(GLOBAL_COMPOSE_PATH+"/dockge/.env", "w")
-    env_file.write(f"STACKS={GLOBAL_COMPOSE_PATH}")
-    env_file.close()
+    env_file_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/.env"
+    write_env_vars(env_file_path, ENV)
 
-    # Dockge Image
+    # Start Dockge Image
     start_docker_container(GLOBAL_COMPOSE_PATH, service_name)
 
-def install_homepage(GLOBAL_COMPOSE_PATH, PUID, PGID):
+def install_homepage(GLOBAL_COMPOSE_PATH: str, ENV: dict) -> None:
     service_name = "homepage"
     check_service_path(GLOBAL_COMPOSE_PATH, service_name)
 
     print("Installing Homepage...")
     # Prep ENV File
-    env_file = open(GLOBAL_COMPOSE_PATH+"/homepage/.env", "w")
-    port = get_valid_port("Homepage")
-    cfg_path = f"{GLOBAL_COMPOSE_PATH}/homepage/config"
+    env_file_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/.env"
+    cfg_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/config"
+    ENV["HOMEPAGE_CONFIG_PATH"] = cfg_path
     if not os.path.exists(cfg_path):
         os.makedirs(cfg_path)
-    env_file.write(f"PUID={PUID}\nPGID={PGID}\nHOMEPAGE_PORT={port}\nCONFIG_PATH={cfg_path}")
-    env_file.close()
+    write_env_vars(env_file_path, ENV)
 
-    # Homepage Image
+    # Start Homepage Image
     start_docker_container(GLOBAL_COMPOSE_PATH, service_name)
+
+
+def install_prometheus(GLOBAL_COMPOSE_PATH: str, ENV: dict, CFG:dict) -> None:
+    service_name = "prometheus-grafana"
+    check_service_path(GLOBAL_COMPOSE_PATH, service_name)
+
+    print("Installing Prometheus...")
+    # Check congig folder
+    cfg_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/config"
+    if not os.path.exists(cfg_path):
+        os.makedirs(cfg_path)
+    ENV["PROMETHEUS_CONFIG"] = cfg_path
+
+    # Write CFG File
+    subprocess.run(["cp", "./compose/prometheus-grafana/config/prometheus.yaml", f"{cfg_path}/prometheus.yaml"])
+    write_cfg_vars(f"{cfg_path}/prometheus.yaml", CFG)
+
+    # Prep ENV File
+    env_file_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/.env"
+    write_env_vars(env_file_path, ENV)
+
+    
+
 
 
