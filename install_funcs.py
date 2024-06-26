@@ -124,3 +124,16 @@ def install_prometheus(GLOBAL_COMPOSE_PATH: str, ENV: dict, CFG:dict) -> None:
 
     # Start Prometheus-Grafana Stack
     start_docker_stack(GLOBAL_COMPOSE_PATH, service_name)
+
+def install_overseerr(GLOBAL_COMPOSE_PATH: str, ENV: dict) -> None:
+    pass
+    service_name = "overseerr"
+    #check_service_path(GLOBAL_COMPOSE_PATH, service_name)
+
+    #print("Installing Overseerr...")
+    # Prep ENV File
+    #env_file_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/.env"
+    #write_env_vars(env_file_path, ENV)
+
+    # Start Overseerr Image
+    #start_docker_stack(GLOBAL_COMPOSE_PATH, service_name)

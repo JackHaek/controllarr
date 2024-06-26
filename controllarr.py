@@ -199,7 +199,7 @@ if to_install_overseerr:
 
     while not confirmed:
         # Configure Overseerr ENV
-        OVERSEERR_ENV["TZ"] = input("Enter timezone for Overseerr (default: America/New_York): ")
+        OVERSEERR_ENV["TZ"] = vc.get_valid_timezone("Overseerr", OVERSEERR_ENV["TZ"])
         OVERSEERR_ENV["OVERSEERR_PORT"] = vc.get_valid_port("Overseerr", OVERSEERR_ENV["OVERSEERR_PORT"], ALL_ENV)
         print(f"Using port {OVERSEERR_ENV['OVERSEERR_PORT']} for Overseerr.")
 
