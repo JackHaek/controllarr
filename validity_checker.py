@@ -1,7 +1,7 @@
 import socket
 from contextlib import closing
 import re
-import pytz
+import pytz # type: ignore
 
 def check_other_service_ports(all_env: list, port: int) -> bool:
     for env in all_env:
