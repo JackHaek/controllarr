@@ -27,9 +27,9 @@ if not os.path.exists(GLOBAL_COMPOSE_PATH):
 # ========== DEFINE WHAT TO INSTALL ========== #
 
 to_install_traefik = False
-to_install_dockge = False
-to_install_homepage = False
-to_install_prometheus = False
+to_install_dockge = True
+to_install_homepage = True
+to_install_prometheus = True
 to_install_overseerr = True
 
 # ========== ENVIRONMENT VARIABLES FOR CONTAINERS ========== #
