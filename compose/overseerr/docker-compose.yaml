@@ -8,7 +8,7 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
-      - ${OVERSEERR_CONFIG_PATH}:/config
+      - ${OVERSEERR_CONFIG}:/config
     ports:
       - ${OVERSEERR_PORT}:5055
     restart: unless-stopped

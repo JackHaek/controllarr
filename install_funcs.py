@@ -128,12 +128,19 @@ def install_prometheus(GLOBAL_COMPOSE_PATH: str, ENV: dict, CFG:dict) -> None:
 def install_overseerr(GLOBAL_COMPOSE_PATH: str, ENV: dict) -> None:
     pass
     service_name = "overseerr"
-    #check_service_path(GLOBAL_COMPOSE_PATH, service_name)
+    check_service_path(GLOBAL_COMPOSE_PATH, service_name)
 
-    #print("Installing Overseerr...")
+    print("Installing Overseerr...")
+    # Check config folder
+    cfg_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/config"
+    if not os.path.exists(cfg_path):
+        os.makedirs(cfg_path)
+    # Add CFG Path to ENV
+    ENV["OVERSEERR_CONFIG"] = cfg_path
+
     # Prep ENV File
-    #env_file_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/.env"
-    #write_env_vars(env_file_path, ENV)
+    env_file_path = f"{GLOBAL_COMPOSE_PATH}/{service_name}/.env"
+    write_env_vars(env_file_path, ENV)
 
     # Start Overseerr Image
-    #start_docker_stack(GLOBAL_COMPOSE_PATH, service_name)
+    start_docker_stack(GLOBAL_COMPOSE_PATH, service_name)
