@@ -1,6 +1,7 @@
 import socket
 from contextlib import closing
 import re
+import pytz
 
 def check_other_service_ports(all_env: list, port: int) -> bool:
     for env in all_env:
@@ -36,3 +37,12 @@ def get_valid_interval(service_name: str, default: str) -> str:
         print(f"\n{proposed_interval} is an invalid interval. Please enter a valid interval. (e.g. 15s, 1m, 1h)")
         proposed_interval = input(f"Enter scrape interval for {service_name}: ")
     return proposed_interval
+
+def get_valid_timezone(service_name: str, default: str) -> str:
+    proposed_tz = input(f"Enter timezone for {service_name} (default: {default}): ")
+    if proposed_tz == "":
+        proposed_tz = default
+    while not proposed_tz in pytz.all_timezones:
+        print(f"\n{proposed_tz} is an invalid timezone. Please enter a valid timezone. To see a list of valid timezones, visit https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.")
+        proposed_tz = input(f"Enter timezone: ")
+    return proposed_tz

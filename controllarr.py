@@ -29,7 +29,8 @@ if not os.path.exists(GLOBAL_COMPOSE_PATH):
 to_install_traefik = False
 to_install_dockge = False
 to_install_homepage = False
-to_install_prometheus = True
+to_install_prometheus = False
+to_install_overseerr = True
 
 # ========== ENVIRONMENT VARIABLES FOR CONTAINERS ========== #
 # ===================== DO NOT CHANGE ====================== #
@@ -62,6 +63,13 @@ PROMETHEUS_GRAFANA_CFG = {
     "PROMETHEUS_SCRAPE_INTERVAL": "5s"
 }
 
+OVERSEERR_ENV = {
+    "PUID": PUID,
+    "PGID": PGID,
+    "TZ": "America/New_York",
+    "OVERSEERR_PORT": 5055
+}
+
 
 # =================== END DO NOT CHANGE ==================== #
 
@@ -71,6 +79,8 @@ if to_install_traefik:
     print("\n========== Begin Traefik Config ==========\n")
     controllarr.install_traefik(GLOBAL_COMPOSE_PATH, TRAEFIK_ENV)
     ALL_ENV.append(TRAEFIK_ENV)
+
+    print("\n========== Traefik Installation Complete! ==========\n")
 
 if to_install_dockge:
     print("\n========== Begin Dockge Config ==========\n")
@@ -99,6 +109,8 @@ if to_install_dockge:
 
     controllarr.install_dockge(GLOBAL_COMPOSE_PATH, DOCKGE_ENV)
     ALL_ENV.append(DOCKGE_ENV)
+
+    print("\n========== Dockge Installation Complete! ==========\n")
 
 if to_install_homepage:
     print("\n==========Begin Homepage Config ==========\n")
@@ -129,6 +141,8 @@ if to_install_homepage:
     print("") # Spacing
     controllarr.install_homepage(GLOBAL_COMPOSE_PATH, HOMEPAGE_ENV)
     ALL_ENV.append(HOMEPAGE_ENV)
+
+    print("\n========== Homepage Installation Complete! ==========\n")
 
 if to_install_prometheus:
     print("\n========== Begin Prometheus Config ==========\n")
@@ -175,3 +189,38 @@ if to_install_prometheus:
     print("") # Spacing
     controllarr.install_prometheus(GLOBAL_COMPOSE_PATH, PROMETHEUS_GRAFANA_ENV, PROMETHEUS_GRAFANA_CFG)
     ALL_ENV.append(PROMETHEUS_GRAFANA_ENV)
+
+    print("\n========== Prometheus & Grafana Installation Complete! ==========\n")
+
+if to_install_overseerr:
+    print("\n========== Begin Overseerr Config ==========\n")
+
+    confirmed = False
+
+    while not confirmed:
+        # Configure Overseerr ENV
+        OVERSEERR_ENV["TZ"] = input("Enter timezone for Overseerr (default: America/New_York): ")
+        OVERSEERR_ENV["OVERSEERR_PORT"] = vc.get_valid_port("Overseerr", OVERSEERR_ENV["OVERSEERR_PORT"], ALL_ENV)
+        print(f"Using port {OVERSEERR_ENV['OVERSEERR_PORT']} for Overseerr.")
+
+        print("\nOverseerr Config:\n")
+        for key, value in OVERSEERR_ENV.items():
+            print(f"{key}={value}")
+
+        while True:
+            accepted = input("\nAre these settings correct? (y/n): ")
+            if accepted.lower() == "y":
+                confirmed = True
+                break
+            elif accepted.lower() == "n":
+                print("\nReconfiguring Overseerr...\n")
+                break
+            else:
+                print("Invalid input. Please enter 'y' or 'n'.")
+
+    # Install Overseerr
+    print("") # Spacing
+    controllarr.install_overseerr(GLOBAL_COMPOSE_PATH, OVERSEERR_ENV)
+    ALL_ENV.append(OVERSEERR_ENV)
+
+    print("\n========== Overseerr Installation Complete! ==========\n")

@@ -12,6 +12,14 @@ else
     sudo apt-get install python3
 fi
 
+# Check pip
+if [[ $(command -v pip3) ]]; then
+    echo "Pip already installed"
+else
+    echo "Installing Pip"
+    sudo apt-get install python3-pip
+fi
+
 # Check Docker
 if [[ $(command -v docker) ]]; then
     echo "Docker already installed"
@@ -31,6 +39,16 @@ else
     sudo apt-get update
 
     sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+fi
+
+# Set Up Virtual Environment
+if [[ -d "venv" ]]; then
+    echo "Virtual Environment already exists"
+else
+    echo "Setting up Virtual Environment"
+    python3 -m venv venv
+    source venv/bin/activate
+    pip3 install -r requirements.txt
 fi
 
 printf "\n ========== START PYTHON SCRIPT ==========\n\n"
