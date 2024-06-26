@@ -8,7 +8,7 @@ PUID = os.getuid()
 PGID = os.getgid()
 
 if not TESTING:
-    GLOBAL_COMPOSE_PATH = input("Enter complete path to compose file locations: ")
+    GLOBAL_COMPOSE_PATH = input("Enter complete path to store compose & configuration files: ")
 else:
     GLOBAL_COMPOSE_PATH = "/workspaces/ubuntu/tc"
 
