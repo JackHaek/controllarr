@@ -26,11 +26,13 @@ if not os.path.exists(GLOBAL_COMPOSE_PATH):
 
 # ========== DEFINE WHAT TO INSTALL ========== #
 
-to_install_traefik = False
-to_install_dockge = True
-to_install_homepage = True
-to_install_prometheus = True
-to_install_overseerr = True
+to_install = {
+    "traefik": False,
+    "dockge": True,
+    "homepage": True,
+    "prometheus": True,
+    "overseerr": True
+}
 
 # ========== ENVIRONMENT VARIABLES FOR CONTAINERS ========== #
 # ===================== DO NOT CHANGE ====================== #
@@ -75,14 +77,14 @@ OVERSEERR_ENV = {
 
 print("\n========== Welcome to Controllarr! ==========\n")
 
-if to_install_traefik:
+if to_install["traefik"]:
     print("\n========== Begin Traefik Config ==========\n")
     controllarr.install_traefik(GLOBAL_COMPOSE_PATH, TRAEFIK_ENV)
     ALL_ENV.append(TRAEFIK_ENV)
 
     print("\n========== Traefik Installation Complete! ==========\n")
 
-if to_install_dockge:
+if to_install["dockge"]:
     print("\n========== Begin Dockge Config ==========\n")
 
     confirmed = False
@@ -112,7 +114,7 @@ if to_install_dockge:
 
     print("\n========== Dockge Installation Complete! ==========\n")
 
-if to_install_homepage:
+if to_install["homepage"]:
     print("\n==========Begin Homepage Config ==========\n")
 
     confirmed = False
@@ -144,7 +146,7 @@ if to_install_homepage:
 
     print("\n========== Homepage Installation Complete! ==========\n")
 
-if to_install_prometheus:
+if to_install["prometheus"]:
     print("\n========== Begin Prometheus Config ==========\n")
 
     confirmed = False
@@ -192,7 +194,7 @@ if to_install_prometheus:
 
     print("\n========== Prometheus & Grafana Installation Complete! ==========\n")
 
-if to_install_overseerr:
+if to_install["overseerr"]:
     print("\n========== Begin Overseerr Config ==========\n")
 
     confirmed = False
