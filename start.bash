@@ -8,7 +8,6 @@ if [[ $(command -v python3) ]]; then
 else
     echo "Installing Python"
     sudo apt update
-    sudo apt upgrade
     sudo apt-get install python3
     sudo apt install python3-venv
 fi
@@ -27,7 +26,6 @@ if [[ $(command -v docker) ]]; then
 else
     echo "Installing Docker"
     sudo apt-get update
-    sudo apt-get upgrade
     sudo apt-get install ca-certificates curl gnupg
     sudo install -m 0755 -d /etc/apt/keyrings
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
