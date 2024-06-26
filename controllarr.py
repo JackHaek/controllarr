@@ -42,7 +42,8 @@ TRAEFIK_ENV = {
 }
 
 DOCKGE_ENV = {
-    "STACKS": GLOBAL_COMPOSE_PATH
+    "STACKS": GLOBAL_COMPOSE_PATH,
+    "DOCKGE_PORT": 5001
 }
 
 HOMEPAGE_ENV = {
@@ -73,25 +74,104 @@ if to_install_traefik:
 
 if to_install_dockge:
     print("\n========== Begin Dockge Config ==========\n")
+
+    confirmed = False
+
+    while not confirmed:
+        # Configure Dockge ENV
+        DOCKGE_ENV["DOCKGE_PORT"] = vc.get_valid_port("Dockge", DOCKGE_ENV["DOCKGE_PORT"], ALL_ENV)
+        print(f"Using port {DOCKGE_ENV['DOCKGE_PORT']} for Dockge.")
+
+        print("\nDockge Config:\n")
+        for key, value in DOCKGE_ENV.items():
+            print(f"{key}={value}")
+
+        while True:
+            accepted = input("\nAre these settings correct? (y/n): ")
+            if accepted.lower() == "y":
+                confirmed = True
+                break
+            elif accepted.lower() == "n":
+                print("\nReconfiguring Dockge...\n")
+                break
+            else:
+                print("Invalid input. Please enter 'y' or 'n'.")
+
     controllarr.install_dockge(GLOBAL_COMPOSE_PATH, DOCKGE_ENV)
     ALL_ENV.append(DOCKGE_ENV)
 
 if to_install_homepage:
     print("\n==========Begin Homepage Config ==========\n")
+
+    confirmed = False
+
+    while not confirmed:
+        # Configure Homepage ENV
+        HOMEPAGE_ENV["HOMEPAGE_PORT"] = vc.get_valid_port("Homepage", HOMEPAGE_ENV["HOMEPAGE_PORT"], ALL_ENV)
+        print(f"Using port {HOMEPAGE_ENV['HOMEPAGE_PORT']} for Homepage.")
+
+        print("\nHomepage Config:\n")
+        for key, value in HOMEPAGE_ENV.items():
+            print(f"{key}={value}")
+
+        while True:
+            accepted = input("\nAre these settings correct? (y/n): ")
+            if accepted.lower() == "y":
+                confirmed = True
+                break
+            elif accepted.lower() == "n":
+                print("\nReconfiguring Homepage...\n")
+                break
+            else:
+                print("Invalid input. Please enter 'y' or 'n'.")
+
+    # Install Homepage
+    print("") # Spacing
     controllarr.install_homepage(GLOBAL_COMPOSE_PATH, HOMEPAGE_ENV)
     ALL_ENV.append(HOMEPAGE_ENV)
 
 if to_install_prometheus:
     print("\n========== Begin Prometheus Config ==========\n")
-    
-    # Configure Prometheus-Grafana ENV
-    PROMETHEUS_GRAFANA_ENV["PROMETHEUS_PORT"] = vc.get_valid_port("Prometheus", PROMETHEUS_GRAFANA_ENV["PROMETHEUS_PORT"], ALL_ENV)
-    PROMETHEUS_GRAFANA_ENV["GRAFANA_PORT"] = vc.get_valid_port("Grafana", PROMETHEUS_GRAFANA_ENV["GRAFANA_PORT"], ALL_ENV)
 
-    # Configure Prometheus-Grafana CFG
-    PROMETHEUS_GRAFANA_CFG["GLOBAL_SCRAPE_INTERVAL"] = vc.get_valid_interval("Prometheus - GLOBAL", PROMETHEUS_GRAFANA_CFG["GLOBAL_SCRAPE_INTERVAL"])
-    PROMETHEUS_GRAFANA_CFG["PROMETHEUS_SCRAPE_INTERVAL"] = vc.get_valid_interval("Prometheus", PROMETHEUS_GRAFANA_CFG["PROMETHEUS_SCRAPE_INTERVAL"])
+    confirmed = False
+    
+    while not confirmed:
+        # Configure Prometheus-Grafana ENV
+        PROMETHEUS_GRAFANA_ENV["PROMETHEUS_PORT"] = vc.get_valid_port("Prometheus", PROMETHEUS_GRAFANA_ENV["PROMETHEUS_PORT"], ALL_ENV)
+        print(f"Using port {PROMETHEUS_GRAFANA_ENV['PROMETHEUS_PORT']} for Prometheus.")
+
+        PROMETHEUS_GRAFANA_ENV["GRAFANA_PORT"] = vc.get_valid_port("Grafana", PROMETHEUS_GRAFANA_ENV["GRAFANA_PORT"], ALL_ENV)
+        print(f"Using port {PROMETHEUS_GRAFANA_ENV['GRAFANA_PORT']} for Grafana.")
+
+
+        # Configure Prometheus-Grafana CFG
+        PROMETHEUS_GRAFANA_CFG["GLOBAL_SCRAPE_INTERVAL"] = vc.get_valid_interval("Prometheus - GLOBAL", PROMETHEUS_GRAFANA_CFG["GLOBAL_SCRAPE_INTERVAL"])
+        print(f"Global Scrape Interval set to: {PROMETHEUS_GRAFANA_CFG['GLOBAL_SCRAPE_INTERVAL']}")
+
+        PROMETHEUS_GRAFANA_CFG["PROMETHEUS_SCRAPE_INTERVAL"] = vc.get_valid_interval("Prometheus", PROMETHEUS_GRAFANA_CFG["PROMETHEUS_SCRAPE_INTERVAL"])
+        print(f"Prometheus Scrape Interval set to: {PROMETHEUS_GRAFANA_CFG['PROMETHEUS_SCRAPE_INTERVAL']}")
+
+
+        print("\nPrometheus-Grafana Config:\n")
+        for key, value in PROMETHEUS_GRAFANA_ENV.items():
+            print(f"{key}={value}")
+        for key, value in PROMETHEUS_GRAFANA_CFG.items():
+            print(f"{key}={value}")
+
+        while True:
+            accepted = input("\nAre these settings correct? (y/n): ")
+            if accepted.lower() == "y":
+                confirmed = True
+                break
+            elif accepted.lower() == "n":
+                print("\nReconfiguring Prometheus-Grafana...\n")
+                break
+            else:
+                print("Invalid input. Please enter 'y' or 'n'.")
+
+    
 
     # Install Prometheus-Grafana
+    print("") # Spacing
     controllarr.install_prometheus(GLOBAL_COMPOSE_PATH, PROMETHEUS_GRAFANA_ENV, PROMETHEUS_GRAFANA_CFG)
     ALL_ENV.append(PROMETHEUS_GRAFANA_ENV)
